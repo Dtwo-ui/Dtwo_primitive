@@ -1,7 +1,8 @@
-import React, { useContext, useLayoutEffect, useState } from 'react';
+import React, { useContext, useLayoutEffect, useState, useRef } from 'react';
 
 import { Primitive } from '../primitives/primitives';
 import type { ImageLoadingStatus } from '../hooks/useImageLoadingStatus';
+import { useImageLoadingStatus } from '../hooks/useImageLoadingStatus';
 
 type AvatarContextValue = {
   imageLoadingStatus?: ImageLoadingStatus;
@@ -16,8 +17,23 @@ const AvatarContext = React.createContext<AvatarContextValue>({
 
 const Provider = <T extends object | null>(props: T & { children: React.ReactNode }) => {
   const { children, ...providerProps } = props;
+  const [imageLoadingStatus, setImageLoadingStatus] = useState<ImageLoadingStatus>('init');
 
-  return <AvatarContext.Provider value={providerProps}>{children}</AvatarContext.Provider>;
+  const updateImageLoadingStatus = (status: ImageLoadingStatus) => {
+    setImageLoadingStatus(status);
+  };
+
+  return (
+    <AvatarContext.Provider
+      value={{
+        ...providerProps,
+        imageLoadingStatus,
+        updateImageLoadingStatus,
+      }}
+    >
+      {children}
+    </AvatarContext.Provider>
+  );
 };
 
 /*------------------------------------------------------------*/
@@ -25,6 +41,7 @@ const Provider = <T extends object | null>(props: T & { children: React.ReactNod
 type AvatarProps = React.PropsWithoutRef<React.ComponentProps<typeof Primitive.span>>;
 function Avatar(props: AvatarProps) {
   const { children, ...avatarProps } = props;
+
   return (
     <Provider>
       <Primitive.span {...avatarProps}>{props.children}</Primitive.span>
@@ -35,7 +52,16 @@ function Avatar(props: AvatarProps) {
   type AvatarImageProps = React.PropsWithoutRef<React.ComponentProps<typeof Primitive.img>>;
   function AvatarImage(props: AvatarImageProps) {
     const { src, ...imageProps } = props;
+    const { updateImageLoadingStatus } = useContext(AvatarContext);
 
-    return <Primitive.img {...imageProps}></Primitive.img>;
+    const imageLoadingStatus = useImageLoadingStatus(src);
+
+    useLayoutEffect(() => {
+      if (updateImageLoadingStatus) {
+        updateImageLoadingStatus(imageLoadingStatus);
+      }
+    }, [imageLoadingStatus]);
+
+    return imageLoadingStatus === 'settled' ? <Primitive.img {...imageProps} /> : null;
   }
 }
