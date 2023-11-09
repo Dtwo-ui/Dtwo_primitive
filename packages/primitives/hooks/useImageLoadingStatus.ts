@@ -11,7 +11,7 @@ export function useImageLoadingStatus(src?: string): ImageLoadingStatus {
       return;
     }
 
-    const image = new window.Image();
+    let image: HTMLImageElement | null = new window.Image();
 
     image.onload = () => {
       setImageLoadingStatus('settled');
@@ -23,6 +23,10 @@ export function useImageLoadingStatus(src?: string): ImageLoadingStatus {
 
     image.src = src;
     setImageLoadingStatus('loading');
+
+    return () => {
+      image = null;
+    };
   }, [src]);
 
   return imageLoadingStatus;
