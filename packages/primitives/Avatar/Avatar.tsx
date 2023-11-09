@@ -1,10 +1,18 @@
-import React, { useContext } from 'react';
+import React, { useContext, useLayoutEffect, useState } from 'react';
 
 import { Primitive } from '../primitives/primitives';
+import type { ImageLoadingStatus } from '../hooks/useImageLoadingStatus';
+
+type AvatarContextValue = {
+  imageLoadingStatus?: ImageLoadingStatus;
+  updateImageLoadingStatus?(status: ImageLoadingStatus): void;
+};
 
 /*------------------------------------------------------------*/
 
-const AvatarContext = React.createContext<any>(null);
+const AvatarContext = React.createContext<AvatarContextValue>({
+  imageLoadingStatus: 'init',
+});
 
 const Provider = <T extends object | null>(props: T & { children: React.ReactNode }) => {
   const { children, ...providerProps } = props;
@@ -22,11 +30,12 @@ function Avatar(props: AvatarProps) {
       <Primitive.span {...avatarProps}>{props.children}</Primitive.span>
     </Provider>
   );
-}
 
-/*------------------------------------------------------------*/
-type AvatarImageProps = React.PropsWithoutRef<React.ComponentProps<typeof Primitive.img>>;
-function AvatarImage(props: AvatarImageProps) {
-  const { src, ...imageProps } = props;
+  /*------------------------------------------------------------*/
+  type AvatarImageProps = React.PropsWithoutRef<React.ComponentProps<typeof Primitive.img>>;
+  function AvatarImage(props: AvatarImageProps) {
+    const { src, ...imageProps } = props;
+
+    return <Primitive.img {...imageProps}></Primitive.img>;
+  }
 }
-const a = 1;
