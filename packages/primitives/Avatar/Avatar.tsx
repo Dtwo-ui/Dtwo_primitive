@@ -47,21 +47,25 @@ function Avatar(props: AvatarProps) {
       <Primitive.span {...avatarProps}>{props.children}</Primitive.span>
     </Provider>
   );
-
-  /*------------------------------------------------------------*/
-  type AvatarImageProps = React.PropsWithoutRef<React.ComponentProps<typeof Primitive.img>>;
-  function AvatarImage(props: AvatarImageProps) {
-    const { src, ...imageProps } = props;
-    const { updateImageLoadingStatus } = useContext(AvatarContext);
-
-    const imageLoadingStatus = useImageLoadingStatus(src);
-
-    useLayoutEffect(() => {
-      if (updateImageLoadingStatus) {
-        updateImageLoadingStatus(imageLoadingStatus);
-      }
-    }, [imageLoadingStatus]);
-
-    return imageLoadingStatus === 'settled' ? <Primitive.img {...imageProps} /> : null;
-  }
 }
+/*------------------------------------------------------------*/
+type AvatarImageProps = React.PropsWithoutRef<React.ComponentProps<typeof Primitive.img>>;
+function AvatarImage(props: AvatarImageProps) {
+  const { src, ...imageProps } = props;
+  const { updateImageLoadingStatus } = useContext(AvatarContext);
+
+  const imageLoadingStatus = useImageLoadingStatus(src);
+
+  useLayoutEffect(() => {
+    if (updateImageLoadingStatus) {
+      updateImageLoadingStatus(imageLoadingStatus);
+    }
+  }, [imageLoadingStatus]);
+
+  return imageLoadingStatus === 'settled' ? <Primitive.img src={src} {...imageProps} /> : null;
+}
+
+const Root = Avatar;
+const Image = AvatarImage;
+
+export { Root, Image, AvatarImage, Avatar };
