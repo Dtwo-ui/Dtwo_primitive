@@ -26,18 +26,20 @@ type PrimitivesType = {
   >;
 };
 
-export const Primitive = nodes.reduce((components, htmlElement) => {
-  const Node = React.forwardRef(
-    (props: React.PropsWithoutRef<React.ComponentProps<typeof htmlElement>>, ref: any) => {
-      const Component: any = htmlElement;
+type ComponentPropsWithoutRef<T extends React.ElementType> = React.PropsWithoutRef<
+  React.ComponentProps<T>
+>;
 
-      return (
-        <Component {...props} ref={ref}>
-          {props.children}
-        </Component>
-      );
-    }
-  );
+export const Primitive = nodes.reduce((components, htmlElement) => {
+  const Node = React.forwardRef((props: ComponentPropsWithoutRef<typeof htmlElement>, ref: any) => {
+    const Component: any = htmlElement;
+
+    return (
+      <Component {...props} ref={ref}>
+        {props.children}
+      </Component>
+    );
+  });
 
   return { ...components, [htmlElement]: Node };
 }, {} as PrimitivesType);
